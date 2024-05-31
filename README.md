@@ -10,6 +10,6 @@
 
 [Fakultet informatike u Puli](https://fipu.unipu.hr/)
 
-Kolegij: [Programiranje na Java virtualnom stroju]
+Kolegij: Programiranje na Java virtualnom stroju
 
 Mentor: [izv. prof. dr. sc. Siniša Sovilj](sinisa.sovilj@unipu.hr)
