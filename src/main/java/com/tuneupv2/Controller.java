@@ -1,8 +1,12 @@
 package com.tuneupv2;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import org.jaudiotagger.audio.AudioFile;
@@ -18,6 +22,9 @@ public class Controller {
     private MediaPlayer mediaPlayer;
     private int currentSongIndex = 0;
     private Label currentlyPlayingLabel;
+    private BooleanProperty isPlayingProperty = new SimpleBooleanProperty(false);
+    private SimpleDoubleProperty volume = new SimpleDoubleProperty(0.25); // Default volume 25%
+
 
     public Controller(Label currentlyPlayingLabel) {
         this.currentlyPlayingLabel = currentlyPlayingLabel;
@@ -66,19 +73,23 @@ public class Controller {
         }
         Media media = new Media(song.getUrl());
         mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setVolume(volume.get()); // Set the volume to the stored value
         mediaPlayer.play();
         currentlyPlayingLabel.setText("Now playing: " + song.getSongName());
+        isPlayingProperty.set(true);
     }
 
     public void play() {
         if (mediaPlayer != null) {
             mediaPlayer.play();
+            isPlayingProperty.set(true);
         }
     }
 
     public void pause() {
         if (mediaPlayer != null) {
             mediaPlayer.pause();
+            isPlayingProperty.set(false);
         }
     }
 
@@ -104,10 +115,27 @@ public class Controller {
         }
     }
 
-    public void setVolume(double volume) {
-        if (mediaPlayer != null) {
-            mediaPlayer.setVolume(volume);
-        }
+    private Slider createVolumeSlider() {
+        Slider volumeSlider = new Slider(0, 100, volume.get() * 100); // Set default value to the stored volume
+
+        // Add listener to update the volume when slider value changes
+        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            volume.set(newVal.doubleValue() / 100); // Update the stored volume
+            if (mediaPlayer != null) {
+                mediaPlayer.setVolume(volume.get());
+            }
+        });
+
+        return volumeSlider;
+    }
+
+    public Slider getVolumeSlider() {
+        return createVolumeSlider();
+    }
+
+
+    public BooleanProperty isPlayingProperty() {
+        return isPlayingProperty;
     }
 
 }

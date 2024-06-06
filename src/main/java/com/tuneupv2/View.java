@@ -9,8 +9,8 @@ import javafx.scene.layout.HBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.File;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class View {
     private Controller controller;
@@ -105,24 +105,27 @@ public class View {
     private Button createPlayPauseButton() {
         Button playPauseButton = new Button("⏵");
 
-        // Use a boolean flag to track the current state (playing or paused)
-        AtomicBoolean isPlaying = new AtomicBoolean(false);
-
         // Set the initial button state and action
         playPauseButton.setOnAction(event -> {
-            if (isPlaying.get()) {
+            if (controller.isPlayingProperty().get()) {
                 controller.pause();
-                playPauseButton.setText("⏵"); // Change button text to play icon
             } else {
                 controller.play();
-                playPauseButton.setText("⏸"); // Change button text to pause icon
             }
-            // Toggle the flag
-            isPlaying.set(!isPlaying.get());
+        });
+
+        // Update button state when playback status changes
+        controller.isPlayingProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                playPauseButton.setText("⏸"); // Change button text to pause icon
+            } else {
+                playPauseButton.setText("⏵"); // Change button text to play icon
+            }
         });
 
         return playPauseButton;
     }
+
     private HBox createBottomControls() {
         Button playPauseButton = createPlayPauseButton();
         Button nextButton = new Button("⏭");
@@ -133,11 +136,9 @@ public class View {
         nextButton.setOnAction(event -> controller.next());
         previousButton.setOnAction(event -> controller.previous());
         shuffleButton.setOnAction(event -> controller.shuffle());
-        Slider volumeSlider = new Slider();
-        volumeSlider.setValue(50); // Set default volume to 50%
-        volumeSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            controller.setVolume(newVal.doubleValue() / 100);
-        });
+
+        // Create the volume slider
+        Slider volumeSlider = controller.getVolumeSlider();
 
         HBox bottomControls = new HBox(10, previousButton, playPauseButton, nextButton, shuffleButton, volumeSlider);
         bottomControls.setStyle("-fx-padding: 10; -fx-alignment: center;");
