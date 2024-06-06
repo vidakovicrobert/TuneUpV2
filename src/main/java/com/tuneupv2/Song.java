@@ -1,6 +1,7 @@
 package com.tuneupv2;
 
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.image.Image;
 
 public class Song {
@@ -12,8 +13,6 @@ public class Song {
     private StringProperty album;
     private StringProperty url;
     private Image image;
-
-    public Song() {}
 
     public Song(String url) {
         this.url = new SimpleStringProperty(url);
