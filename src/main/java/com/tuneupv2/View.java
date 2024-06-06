@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -35,21 +36,32 @@ public class View {
 
     private HBox createTopControls(Stage primaryStage) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Music Folder");
+        directoryChooser.setTitle("Select the music folder");
 
         Button selectFolderButton = new Button();
         selectFolderButton.setGraphic(new ImageView(getClass().getResource("/folder-icon.png").toString()));
+
+        Label folderLabel = new Label("Select the music folder");
+        Label songsDetectedLabel = new Label("Songs detected: 0");
+        songsDetectedLabel.setStyle("-fx-font-size: 10px;"); // Set the font size to be smaller
+
         selectFolderButton.setOnAction(e -> {
             File selectedDirectory = directoryChooser.showDialog(primaryStage);
             if (selectedDirectory != null) {
                 controller.loadSongs(selectedDirectory);
+                folderLabel.setText("Currently playing from: " + selectedDirectory.getName());
+
+                // Update the number of detected songs
+                int songCount = controller.getSongs().size();
+                songsDetectedLabel.setText("Songs detected: " + songCount);
             }
         });
 
-        Label folderLabel = new Label("MusicFolder");
+        VBox folderSelectionBox = new VBox(0, folderLabel, songsDetectedLabel);
+        folderSelectionBox.setStyle("-fx-alignment: center;");
 
-        HBox topControls = new HBox(10, selectFolderButton, folderLabel);
-        topControls.setStyle("-fx-padding: 10; -fx-alignment: center;");
+        HBox topControls = new HBox(5, selectFolderButton, folderSelectionBox);
+        topControls.setStyle("-fx-padding: 5; -fx-alignment: center;");
         return topControls;
     }
 

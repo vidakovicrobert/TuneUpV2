@@ -15,7 +15,7 @@ public class Main extends Application {
 
         Scene scene = view.createScene(primaryStage);
 
-        primaryStage.setTitle("TuneUp");
+        primaryStage.setTitle("TuneUp V2");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
