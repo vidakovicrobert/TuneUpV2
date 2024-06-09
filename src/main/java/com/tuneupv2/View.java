@@ -16,6 +16,7 @@ import java.io.File;
 public class View {
     private Controller controller;
     private Label currentlyPlayingLabel = new Label("No song playing");
+    private ImageView albumArtView = new ImageView();
 
     public View(Controller controller) {
         this.controller = controller;
@@ -24,14 +25,14 @@ public class View {
     public Scene createScene(Stage primaryStage) {
         HBox topControls = createTopControls(primaryStage);
         TableView<Song> tableView = createTableView();
-        HBox bottomControls = createBottomControls();
+        VBox bottomControls = createBottomControls();
 
         BorderPane root = new BorderPane();
         root.setTop(topControls);
         root.setCenter(tableView);
         root.setBottom(bottomControls);
 
-        return new Scene(root, 800, 600);
+        return new Scene(root, 650, 600);
     }
 
     private HBox createTopControls(Stage primaryStage) {
@@ -116,6 +117,7 @@ public class View {
 
     private Button createPlayPauseButton() {
         Button playPauseButton = new Button("⏵");
+        playPauseButton.setPrefSize(40, 40); // Set preferred size
 
         // Set the initial button state and action
         playPauseButton.setOnAction(event -> {
@@ -138,11 +140,28 @@ public class View {
         return playPauseButton;
     }
 
-    private HBox createBottomControls() {
+    private VBox createCurrentlyPlayingBox() {
+        currentlyPlayingLabel.textProperty().bind(controller.currentlyPlayingProperty());
+        VBox currentlyPlayingBox = new VBox(10, albumArtView, currentlyPlayingLabel);
+        currentlyPlayingBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
+        albumArtView.setFitWidth(64); // Set preferred width for the album art
+        albumArtView.setFitHeight(64); // Set preferred height for the album art
+
+        return currentlyPlayingBox;
+    }
+
+    private VBox createBottomControls() {
         Button playPauseButton = createPlayPauseButton();
+        playPauseButton.setPrefSize(40, 40); // Set preferred size
+
         Button nextButton = new Button("⏭");
+        nextButton.setPrefSize(40, 40); // Set preferred size
+
         Button previousButton = new Button("⏮");
+        previousButton.setPrefSize(40, 40); // Set preferred size
+
         Button shuffleButton = new Button("🔀");
+        shuffleButton.setPrefSize(40, 40); // Set preferred size
 
         // Set actions for other buttons (next, previous, shuffle)
         nextButton.setOnAction(event -> controller.next());
@@ -151,8 +170,12 @@ public class View {
 
         // Create the volume slider
         Slider volumeSlider = controller.getVolumeSlider();
+        volumeSlider.setPrefWidth(100); // Set preferred width for the volume slider
 
-        HBox bottomControls = new HBox(10, previousButton, playPauseButton, nextButton, shuffleButton, volumeSlider);
+        HBox controlButtons = new HBox(10, previousButton, playPauseButton, nextButton, shuffleButton, volumeSlider);
+        controlButtons.setStyle("-fx-padding: 10; -fx-alignment: center;");
+
+        VBox bottomControls = new VBox(10, createCurrentlyPlayingBox(), controlButtons);
         bottomControls.setStyle("-fx-padding: 10; -fx-alignment: center;");
 
         return bottomControls;

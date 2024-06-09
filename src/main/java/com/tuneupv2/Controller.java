@@ -1,12 +1,11 @@
 package com.tuneupv2;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import org.jaudiotagger.audio.AudioFile;
@@ -22,12 +21,14 @@ public class Controller {
     private MediaPlayer mediaPlayer;
     private int currentSongIndex = 0;
     private Label currentlyPlayingLabel;
+    private ImageView albumArtView;
     private BooleanProperty isPlayingProperty = new SimpleBooleanProperty(false);
     private SimpleDoubleProperty volume = new SimpleDoubleProperty(0.25); // Default volume 25%
+    private StringProperty currentlyPlaying = new SimpleStringProperty("No song playing");
 
-
-    public Controller(Label currentlyPlayingLabel) {
+    public Controller(Label currentlyPlayingLabel, ImageView albumArtView) {
         this.currentlyPlayingLabel = currentlyPlayingLabel;
+        this.albumArtView = albumArtView;
     }
 
     public ObservableList<Song> getSongs() {
@@ -56,6 +57,9 @@ public class Controller {
                             file.toURI().toString()
                     );
 
+                    if (!songs.isEmpty()) {
+                        currentlyPlaying.set("No song playing");
+                    }
                     songs.add(song);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -75,8 +79,18 @@ public class Controller {
         mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setVolume(volume.get()); // Set the volume to the stored value
         mediaPlayer.play();
-        currentlyPlayingLabel.setText("Now playing: " + song.getSongName());
+        updateNowPlayingInfo(song);
         isPlayingProperty.set(true);
+        currentlyPlaying.set(song.getSongName());
+    }
+
+    private void updateNowPlayingInfo(Song song) {
+        currentlyPlayingLabel.setText("Now playing: " + song.getSongName());
+        if (song.getImage() != null) {
+            albumArtView.setImage(song.getImage());
+        } else {
+            albumArtView.setImage(null); // Clear image if not available
+        }
     }
 
     public void play() {
@@ -115,6 +129,12 @@ public class Controller {
         }
     }
 
+    public StringProperty currentlyPlayingProperty() {
+        return currentlyPlaying;
+    }
+
+
+
     private Slider createVolumeSlider() {
         Slider volumeSlider = new Slider(0, 100, volume.get() * 100); // Set default value to the stored volume
 
@@ -132,7 +152,6 @@ public class Controller {
     public Slider getVolumeSlider() {
         return createVolumeSlider();
     }
-
 
     public BooleanProperty isPlayingProperty() {
         return isPlayingProperty;
