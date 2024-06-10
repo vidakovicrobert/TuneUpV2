@@ -1,11 +1,15 @@
 package com.tuneupv2;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -18,8 +22,11 @@ public class View {
     private Label currentlyPlayingLabel = new Label("No song playing");
     private ImageView albumArtView = new ImageView();
 
+
     public View(Controller controller) {
         this.controller = controller;
+        // Set the default album art image
+        albumArtView.setImage(new Image(getClass().getResource("/albumArt2.png").toString()));
     }
 
     public Scene createScene(Stage primaryStage) {
@@ -117,7 +124,7 @@ public class View {
 
     private Button createPlayPauseButton() {
         Button playPauseButton = new Button("⏵");
-        playPauseButton.setPrefSize(40, 40); // Set preferred size
+        playPauseButton.setPrefSize(30, 30); // Set preferred size
 
         // Set the initial button state and action
         playPauseButton.setOnAction(event -> {
@@ -140,28 +147,32 @@ public class View {
         return playPauseButton;
     }
 
-    private VBox createCurrentlyPlayingBox() {
+    private HBox createCurrentlyPlayingBox() {
         currentlyPlayingLabel.textProperty().bind(controller.currentlyPlayingProperty());
-        VBox currentlyPlayingBox = new VBox(10, albumArtView, currentlyPlayingLabel);
-        currentlyPlayingBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
-        albumArtView.setFitWidth(64); // Set preferred width for the album art
-        albumArtView.setFitHeight(64); // Set preferred height for the album art
+        albumArtView.setFitWidth(60);
+        albumArtView.setFitHeight(60);
+        albumArtView.setPreserveRatio(true); // Preserve aspect ratio
+        albumArtView.setSmooth(true); // Enable smooth scaling
 
-        return currentlyPlayingBox;
+        // Create an HBox to hold the album art view and label
+        HBox albumArtLabelBox = new HBox(10, albumArtView, currentlyPlayingLabel);
+        albumArtLabelBox.setAlignment(Pos.CENTER_LEFT); // Align items to the left
+
+        return albumArtLabelBox;
     }
 
-    private VBox createBottomControls() {
+    private HBox createControlButtons() {
         Button playPauseButton = createPlayPauseButton();
-        playPauseButton.setPrefSize(40, 40); // Set preferred size
+        playPauseButton.setPrefSize(30, 30); // Set preferred size
 
         Button nextButton = new Button("⏭");
-        nextButton.setPrefSize(40, 40); // Set preferred size
+        nextButton.setPrefSize(30, 30); // Set preferred size
 
         Button previousButton = new Button("⏮");
-        previousButton.setPrefSize(40, 40); // Set preferred size
+        previousButton.setPrefSize(30, 30); // Set preferred size
 
         Button shuffleButton = new Button("🔀");
-        shuffleButton.setPrefSize(40, 40); // Set preferred size
+        shuffleButton.setPrefSize(30, 30); // Set preferred size
 
         // Set actions for other buttons (next, previous, shuffle)
         nextButton.setOnAction(event -> controller.next());
@@ -173,11 +184,70 @@ public class View {
         volumeSlider.setPrefWidth(100); // Set preferred width for the volume slider
 
         HBox controlButtons = new HBox(10, previousButton, playPauseButton, nextButton, shuffleButton, volumeSlider);
-        controlButtons.setStyle("-fx-padding: 10; -fx-alignment: center;");
+        controlButtons.setAlignment(Pos.CENTER_RIGHT); // Align items to the right
 
-        VBox bottomControls = new VBox(10, createCurrentlyPlayingBox(), controlButtons);
-        bottomControls.setStyle("-fx-padding: 10; -fx-alignment: center;");
+        return controlButtons;
+    }
+
+    private VBox createBottomControls() {
+        HBox currentlyPlayingBox = createCurrentlyPlayingBox();
+        HBox controlButtons = createControlButtons();
+        Slider progressBar = createProgressBar();
+
+        // Create a wrapper HBox to align currentlyPlayingBox to the left and controlButtons to the right
+        HBox bottomHBox = new HBox(currentlyPlayingBox, controlButtons);
+        HBox.setHgrow(controlButtons, Priority.ALWAYS); // Make control buttons take available space to the right
+        bottomHBox.setAlignment(Pos.CENTER_LEFT);
+        bottomHBox.setStyle("-fx-padding: 10;");
+
+        VBox bottomControls = new VBox(bottomHBox);
+        bottomControls.setStyle("-fx-padding: 15; -fx-alignment: center;");
+
+
+        // Create a separate HBox for the progressBar to control its width independently
+        HBox progressBarBox = new HBox(progressBar);
+        progressBarBox.setAlignment(Pos.CENTER_LEFT);
+        progressBarBox.setStyle("-fx-padding: 10; -fx-alignment: center;");
+
+        bottomControls.getChildren().add(progressBarBox);
 
         return bottomControls;
+
     }
+
+    private Slider createProgressBar() {
+        Slider progressBar = new Slider();
+        progressBar.setPrefWidth(400); // Set preferred width for the progress bar
+        progressBar.setMax(100); // Set maximum value (this will represent 100% of the song's duration)
+
+        // Bind the slider's value to the current position of the song
+        controller.currentTimeProperty().addListener((obs, oldTime, newTime) -> {
+            if (!progressBar.isValueChanging()) { // If user is not dragging the slider
+                double total = controller.totalDurationProperty().get();
+                if (total > 0) {
+                    progressBar.setValue(newTime.doubleValue() / total * 100);
+                }
+            }
+        });
+
+        // Allow the user to seek by dragging the slider
+        progressBar.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) { // When user finishes dragging the slider
+                double total = controller.totalDurationProperty().get();
+                if (total > 0) {
+                    controller.seek(progressBar.getValue() / 100 * total);
+                }
+            }
+        });
+
+        progressBar.setOnMouseReleased(event -> { // When user clicks on the slider
+            double total = controller.totalDurationProperty().get();
+            if (total > 0) {
+                controller.seek(progressBar.getValue() / 100 * total);
+            }
+        });
+
+        return progressBar;
+    }
+
 }

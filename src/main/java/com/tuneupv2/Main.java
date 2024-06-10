@@ -11,9 +11,8 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         Label currentlyPlayingLabel = new Label("No song playing");
-        ImageView albumArtView = new ImageView();
 
-        Controller controller = new Controller(currentlyPlayingLabel, albumArtView);
+        Controller controller = new Controller(currentlyPlayingLabel);
         View view = new View(controller);
 
         Scene scene = view.createScene(primaryStage);

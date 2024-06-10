@@ -12,13 +12,13 @@ public class Song {
     private StringProperty duration;
     private StringProperty album;
     private StringProperty url;
-    private Image image;
+    private Image albumArt;
 
     public Song(String url) {
         this.url = new SimpleStringProperty(url);
     }
 
-    public Song(String id, String artistName, String songName, String length, String duration, String album, String url) {
+    public Song(String id, String artistName, String songName, String length, String duration, String album, String url, Image albumArt) {
         this.id = new SimpleStringProperty(id);
         this.artistName = new SimpleStringProperty(artistName);
         this.songName = new SimpleStringProperty(songName);
@@ -26,6 +26,7 @@ public class Song {
         this.duration = new SimpleStringProperty(duration);
         this.album = new SimpleStringProperty(album);
         this.url = new SimpleStringProperty(url);
+        this.albumArt = albumArt;
     }
 
     public String getId() {
@@ -112,11 +113,11 @@ public class Song {
         this.url.set(url);
     }
 
-    public Image getImage() {
-        return image;
+    public Image getAlbumArt() {
+        return albumArt;
     }
 
-    public void setImage(Image image) {
-        this.image = image;
+    public void setAlbumArt(Image albumArt) {
+        this.albumArt = albumArt;
     }
 }
