@@ -13,3 +13,10 @@
 Kolegij: Programiranje na Java virtualnom stroju
 
 Mentor: [izv. prof. dr. sc. Siniša Sovilj](sinisa.sovilj@unipu.hr)
+
+Izgled aplikacije:
+
+![TuneUpV2](https://github.com/vidakovicrobert/TuneUpV2/blob/master/screenshots/Screenshot1.png)
+![TuneUpV2](https://github.com/vidakovicrobert/TuneUpV2/blob/master/screenshots/Screenshot1b.png)
+![TuneUpV2](https://github.com/vidakovicrobert/TuneUpV2/blob/master/screenshots/Screenshot3.png)
+![TuneUpV2](https://github.com/vidakovicrobert/TuneUpV2/blob/master/screenshots/Screenshot3b.png)
