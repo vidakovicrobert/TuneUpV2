@@ -31,7 +31,7 @@ public class Controller {
     private StringProperty currentlyPlaying = new SimpleStringProperty("No song playing");
     private DoubleProperty currentTime = new SimpleDoubleProperty();
     private DoubleProperty totalDuration = new SimpleDoubleProperty();
-
+    private BooleanProperty isMutedProperty = new SimpleBooleanProperty(false);
     public Controller(Label currentlyPlayingLabel) {
         this.currentlyPlayingLabel = currentlyPlayingLabel;
     }
@@ -89,16 +89,25 @@ public class Controller {
         mediaPlayer.play();
         updateNowPlayingInfo(song);
         isPlayingProperty.set(true);
-        currentlyPlaying.set(song.getSongName());
+
+        // Concatenate song name and artist name
+        currentlyPlaying.set(song.getSongName() + "\nby " + song.getArtistName());
 
         // Bind mediaPlayer's current time to currentTime property
         mediaPlayer.currentTimeProperty().addListener((obs, oldTime, newTime) ->
                 currentTime.set(newTime.toSeconds()));
         mediaPlayer.setOnReady(() -> totalDuration.set(mediaPlayer.getTotalDuration().toSeconds()));
+
+        // Set the onEndOfMedia event handler to play the next song
+        mediaPlayer.setOnEndOfMedia(this::next);
+
+        // Mute state
+        mediaPlayer.muteProperty().bind(isMutedProperty);
     }
 
     private void updateNowPlayingInfo(Song song) {
-        currentlyPlayingLabel.setText("Now playing: " + song.getSongName());
+        currentlyPlayingLabel.setText("Now playing: " + song.getSongName() + "by " + song.getArtistName());
+        System.out.println("Now playing: " + song.getSongName() + " by " + song.getArtistName()); // Debug statement
         if (albumArtView != null) {
             albumArtView.setImage(song.getAlbumArt());
         }
@@ -141,6 +150,9 @@ public class Controller {
     }
 
     public StringProperty currentlyPlayingProperty() {
+        currentlyPlaying.addListener((obs, oldVal, newVal) -> {
+            System.out.println("Currently playing updated: " + newVal); // Debug statement
+        });
         return currentlyPlaying;
     }
 
@@ -159,7 +171,14 @@ public class Controller {
     }
 
     public Slider getVolumeSlider() {
-        return createVolumeSlider();
+        Slider volumeSlider = new Slider(0, 1, 0.5);
+        volumeSlider.valueProperty().bindBidirectional(volumeProperty());
+        volumeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (mediaPlayer != null) {
+                mediaPlayer.setVolume(newValue.doubleValue());
+            }
+        });
+        return volumeSlider;
     }
 
     public BooleanProperty isPlayingProperty() {
@@ -196,4 +215,15 @@ public class Controller {
         return new Image(getClass().getResource("/albumArt2.png").toString());
     }
 
+    public DoubleProperty volumeProperty() {
+        return volume;
+    }
+
+    public BooleanProperty isMutedProperty() {
+        return isMutedProperty;
+    }
+
+    public void toggleMute() {
+        isMutedProperty.set(!isMutedProperty.get());
+    }
 }
