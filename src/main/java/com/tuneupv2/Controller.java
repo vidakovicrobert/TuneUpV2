@@ -107,7 +107,7 @@ public class Controller {
 
     private void updateNowPlayingInfo(Song song) {
         currentlyPlayingLabel.setText("Now playing: " + song.getSongName() + "by " + song.getArtistName());
-        System.out.println("Now playing: " + song.getSongName() + " by " + song.getArtistName()); // Debug statement
+        System.out.println("Now playing: " + song.getSongName() + " by " + song.getArtistName());
         if (albumArtView != null) {
             albumArtView.setImage(song.getAlbumArt());
         }
@@ -151,7 +151,6 @@ public class Controller {
 
     public StringProperty currentlyPlayingProperty() {
         currentlyPlaying.addListener((obs, oldVal, newVal) -> {
-            System.out.println("Currently playing updated: " + newVal); // Debug statement
         });
         return currentlyPlaying;
     }
